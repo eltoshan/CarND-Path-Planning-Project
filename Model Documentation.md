@@ -1,0 +1,7 @@
+# Model Documentation
+
+I originally tried to approach the trajectory model using Frenet coordinates, but I was not able to accurately convert between the Frenet coordinates generated and Cartesian coordinates, so that resulted in my ego vehicle leaving the lane even when it was supposed to just keep lane. I ended up converting the global Cartesian coordinates to Cartesian coordinates in the ego vehicle's perspective, similar to what we did for the MPC project. This allowed me to use a set of splines to generate trajectories. I used a spline to smoothly track a lane in the global XY coordinates when the path planner first starts, and when a lane change occurs a second spline is formed for the new lane and merged with the current lane spline to smoothly change lanes. I used another set of splines to track velocity in a similar fashion.
+
+I calculated 3 separate costs in each cycle to determine the behavior of the car. My lane change cost is: `abs(new_lane - current_lane) / (num_lanes - 1)`, which penalizes large lane changes. My following distance cost is: `max(0.0, 1 - abs(distance from car ahead to ego) / 100)`, which penalizes close following distances. My speed difference cost is `max(0.0, 1 - (velocity of car ahead) / (target velocity))` which penalizes following cars much slower than the speed limit.
+
+The calculated costs then rank each lane, where the lowest cost lane is then the target lane to move to.
